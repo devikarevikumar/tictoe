@@ -5,25 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic Tac Toe</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff; /* Blue header color */
+        }
+
         #game-board {
             display: grid;
             grid-template-columns: repeat(3, 100px);
             grid-template-rows: repeat(3, 100px);
+            margin: 20px auto;
+            border: 3px solid #007bff; /* Blue border */
+            border-radius: 5px;
+            background-color: #fff; /* White background */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Shadow */
         }
 
         .cell {
             width: 100px;
             height: 100px;
-            border: 1px solid black;
+            border: 1px solid #ccc; /* Light gray border */
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 2em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .cell:hover {
+            background-color: #f8f9fa; /* Light gray background on hover */
         }
 
         #message {
             margin-top: 20px;
+            text-align: center;
             font-weight: bold;
+            color: #007bff; /* Blue message color */
+            display: none; /* Hide message initially */
+        }
+
+        #message.show {
+            display: block; /* Show message when necessary */
+        }
+
+        button {
+            display: block;
+            margin: 10px auto;
+            padding: 10px 20px;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff; /* Blue button background */
+            color: #fff; /* White button text */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Darker blue on hover */
         }
     </style>
 </head>
@@ -44,20 +96,19 @@
         const cells = [];
 
         let currentPlayer = 'X';
-        let gameMode = '';
+        let gameMode = 'two-players'; // Default game mode if needed
 
-        for (let i = 0; i < 3; i++) {
-            for (let j = 0; j < 3; j++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.row = i;
-                cell.dataset.col = j;
-                cell.addEventListener('click', handleCellClick);
-                cells.push(cell);
-                board.appendChild(cell);
-            }
+        // Initialize game board
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.dataset.index = i;
+            cell.addEventListener('click', handleCellClick);
+            cells.push(cell);
+            board.appendChild(cell);
         }
 
+        // Event listener for game mode selection
         singlePlayerBtn.addEventListener('click', () => {
             gameMode = 'single-player';
             startGame();
@@ -68,22 +119,32 @@
             startGame();
         });
 
+        // Event listener for undo button
         undoBtn.addEventListener('click', undoMove);
 
+        // Function to start the game
         function startGame() {
             currentPlayer = 'X';
             message.textContent = `Player ${currentPlayer}'s turn`;
-            cells.forEach(cell => cell.textContent = '');
+            message.classList.remove('show'); // Hide message
+            cells.forEach(cell => {
+                cell.textContent = '';
+                cell.style.pointerEvents = 'auto'; // Enable cell clicks
+            });
         }
 
+        // Function to handle cell click
         function handleCellClick(event) {
             const cell = event.target;
             if (cell.textContent === '' && !checkWinner()) {
                 cell.textContent = currentPlayer;
                 if (checkWinner()) {
-                    message.textContent = `Player ${currentPlayer} wins!`;
+                    message.textContent = `Player ${currentPlayer} wins! 🎉`;
+                    message.classList.add('show'); // Show message
+                    cells.forEach(cell => cell.style.pointerEvents = 'none'); // Disable further clicks
                 } else if (checkDraw()) {
                     message.textContent = "It's a draw!";
+                    message.classList.add('show'); // Show message
                 } else {
                     currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
                     message.textContent = `Player ${currentPlayer}'s turn`;
@@ -91,6 +152,7 @@
             }
         }
 
+        // Function to check for a winner
         function checkWinner() {
             const winningCombinations = [
                 [0, 1, 2], [3, 4, 5], [6, 7, 8],
@@ -107,13 +169,15 @@
             return false;
         }
 
+        // Function to check for a draw
         function checkDraw() {
             return cells.every(cell => cell.textContent !== '');
         }
 
+        // Function to undo the last move
         function undoMove() {
             if (gameMode === 'two-players') {
-                const lastMove = cells.filter(cell => cell.textContent !== '').pop();
+                const lastMove = cells.slice().reverse().find(cell => cell.textContent !== '');
                 if (lastMove) {
                     lastMove.textContent = '';
                     currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
@@ -124,3 +188,8 @@
     </script>
 </body>
 </html>
+
+     
+       
+
+        
